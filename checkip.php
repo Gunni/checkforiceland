@@ -37,7 +37,7 @@
 // it should only be set in the file that includes this one !
 if (!isset($run))
 { return; }
-     
+
 function iceIP($ip)
 {
     $parts = @explode(".", $ip, 4);
