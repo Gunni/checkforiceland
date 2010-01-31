@@ -7,7 +7,7 @@
  *  //                                                                                 //  *
  *  //    checkip.php - Last modified 01. 01 2009                                      //  *
  *  //                                                                                 //  *
- *  //    Copyright (c) 2008 Gunnar Guðvarðarson                                       //  *
+ *  //    Copyright (c) 2008 Aether                                                    //  *
  *  //                                                                                 //  *
  *  //  Permission is hereby granted, free of charge, to any person obtaining a copy   //  *
  *  //  of this software and associated documentation files (the "Software"), to deal  //  *
