@@ -48,9 +48,9 @@ function ipicelandic($ip)
     // database, it will fail silently and fallback to DNS querying for each
     // request.
     $database_hostname = 'localhost';
-    $database_username = 'ipicelandic';
-    $database_password = 'YN9cDLsj4fcJn4br';
-    $database_database = 'ipicelandic';
+    $database_username = 'username';
+    $database_password = 'password';
+    $database_database = 'database';
     
     $inbinary = inet_pton($ip);
     
