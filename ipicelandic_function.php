@@ -1,0 +1,152 @@
+<?php
+/*
+    Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+        1. Redistributions of source code must retain the above copyright
+           notice, this list of conditions and the following disclaimer.
+        2. Redistributions in binary form must reproduce the above copyright
+           notice, this list of conditions and the following disclaimer in the
+           documentation and/or other materials provided with the distribution.
+        3. The name of the author may not be used to endorse or promote
+           products derived from this software without specific prior written
+           permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
+    NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+    TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+In order to take advantage of the advanced caching feature, the database has to
+be configured properly and the following table created:
+
+CREATE TABLE IF NOT EXISTS `ipicelandic_cache` (
+    `ip`        TINYBLOB   NOT NULL,
+    `icelandic` TINYINT(1) NOT NULL,
+    `when`      TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    PRIMARY KEY  (`ip`(16)),
+    KEY `ip_icelandic` (`ip`(16),`icelandic`),
+    KEY `when` (`when`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+*/
+
+function ipicelandic($ip)
+{
+    // Database configurations.
+    // Please be aware that if ipicelandic is unable to connect to the,
+    // database, it will fail silently and fallback to DNS querying for each
+    // request.
+    $database_hostname = 'localhost';
+    $database_username = 'ipicelandic';
+    $database_password = 'YN9cDLsj4fcJn4br';
+    $database_database = 'ipicelandic';
+    
+    $inbinary = inet_pton($ip);
+    
+    $mysqli = @new mysqli($database_hostname, $database_username, $database_password, $database_database);
+    
+    if (mysqli_connect_errno() == false)
+    {
+        if ($stmt = $mysqli->prepare("DELETE FROM `ipicelandic_cache` WHERE `when` <= TIMESTAMP(NOW(), '-48:00:00')"))
+        {
+            $stmt->execute();
+        }
+        
+        if ($stmt = $mysqli->prepare("SELECT COUNT(*) FROM `ipicelandic_cache` WHERE `ip` = ? AND `icelandic` = '1'"))
+        {
+            $stmt->bind_param('s', $inbinary);
+            $stmt->execute();
+            $stmt->bind_result($counter);
+            $stmt->fetch();
+            $stmt->close();
+            
+            if ($stmt = $mysqli->prepare("UPDATE `ipicelandic_cache` SET `when` = NOW() WHERE `ip` = ?"))
+            {
+                $stmt->bind_param('s', inet_pton($ip));
+                $stmt->execute();
+                $stmt->close();
+            }
+            
+            if ($counter > 0)
+            {
+                return true;
+            }
+        }
+    }
+    
+    $is_icelandic = false;
+    $is_ipv6 = strpos($ip, ':') !== false;
+    
+    if ($is_ipv6 == true)
+    {
+        $result = "";
+        
+        for ($i = 15; $i >= 0; $i--)
+        {
+            $piece = ord($inbinary[$i]);
+            
+            if ($result != "")
+            {
+                $result .= '.';
+            }
+            
+            $fst = bin2hex(chr($piece & 0x0F));
+            $snd = bin2hex(chr($piece >> 4));
+            
+            $result .= $fst[1];
+            $result .= '.';
+            $result .= $snd[1];
+        }
+        
+        $is_icelandic = checkdnsrr($result . ".iceland.rix.is", "AAAA");
+    }
+    else
+    {
+        $parts = explode(".", $ip, 4);
+        $parts = array_reverse($parts);
+        
+        $is_icelandic = checkdnsrr(implode(".", $parts) . ".iceland.rix.is", "A");
+    }
+    
+    if (mysqli_connect_errno() == false)
+    {
+        $int_is_icelandic = $is_icelandic ? 1 : 0;
+        
+        if ($stmt = $mysqli->prepare("INSERT INTO `ipicelandic_cache` (`ip`, `icelandic`) VALUES (?, ?)"))
+        {
+            $stmt->bind_param('si', $inbinary, $int_is_icelandic);
+            $stmt->execute();
+            $stmt->close();
+        }
+        
+        $mysqli->close();
+    }
+    
+    return $is_icelandic;
+}
+
+// USAGE EXAMPLE:
+if (ipicelandic($_SERVER['REMOTE_ADDR']) == false)
+{
+    echo "The IP address $_SERVER[REMOTE_ADDR] is not icelandic. A nuclear bomb has been dispatched and is now en route towards you.\n";
+}
+else
+{
+    echo "The IP address $_SERVER[REMOTE_ADDR] is icelandic. Yay!\n";
+}
+
+// You can now do what ever you want with the result, like targetting a nuclear
+// bomb at those non-Icelanders.
+
+?>
