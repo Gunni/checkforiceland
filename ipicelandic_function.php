@@ -1,5 +1,7 @@
 <?php
 /*
+	checkforiceland - Version 2.2 (09.03.2010)
+	
     Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
 
     Redistribution and use in source and binary forms, with or without
