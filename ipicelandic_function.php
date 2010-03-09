@@ -109,14 +109,14 @@ function ipicelandic($ip)
             $result .= $snd[1];
         }
         
-        $is_icelandic = checkdnsrr($result . ".iceland.rix.is", "AAAA");
+        $is_icelandic = checkdnsrr($result . ".iceland.rix.is.", "AAAA");
     }
     else
     {
         $parts = explode(".", $ip, 4);
         $parts = array_reverse($parts);
         
-        $is_icelandic = checkdnsrr(implode(".", $parts) . ".iceland.rix.is", "A");
+        $is_icelandic = checkdnsrr(implode(".", $parts) . ".iceland.rix.is.", "A");
     }
     
     if (mysqli_connect_errno() == false)
