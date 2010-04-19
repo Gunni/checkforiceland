@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS `ipicelandic_cache` (
     PRIMARY KEY  (`ip`(16)),
     KEY `ip_icelandic` (`ip`(16),`icelandic`),
     KEY `when` (`when`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

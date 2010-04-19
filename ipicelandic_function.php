@@ -1,6 +1,6 @@
 <?php
 /*
-	checkforiceland - Version 2.2 (09.03.2010)
+	checkforiceland - Version 2.3 (2010-04-19)
 	
     Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
 
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `ipicelandic_cache` (
     PRIMARY KEY  (`ip`(16)),
     KEY `ip_icelandic` (`ip`(16),`icelandic`),
     KEY `when` (`when`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 */
 
 function ipicelandic($ip)
@@ -89,8 +89,25 @@ function ipicelandic($ip)
     
     $is_icelandic = false;
     $is_ipv6 = strpos($ip, ':') !== false;
+    $is_ipv6_ipv4map = true;
     
     if ($is_ipv6 == true)
+    {
+        for ($i = 0; $i < 10; $i++)
+        {
+            if ($inbinary[$i] != 0x00)
+            {
+                $is_ipv6_ipv4map = false;
+            }
+        }
+        
+        if (ord($inbinary[10]) != 0xff || ord($inbinary[11]) != 0xff)
+        {
+            $is_ipv6_ipv4map = false;
+        }
+    }
+    
+    if ($is_ipv6 == true && $is_ipv6_ipv4map == false)
     {
         $result = "";
         
@@ -115,7 +132,14 @@ function ipicelandic($ip)
     }
     else
     {
-        $parts = explode(".", $ip, 4);
+        $ip_ = $ip;
+        
+        if ($is_ipv6 == true && $is_ipv6_ipv4map == true)
+        {
+            $ip_ = inet_ntop(substr($inbinary, -4));
+        }
+        
+        $parts = explode(".", $ip_, 4);
         $parts = array_reverse($parts);
         
         $is_icelandic = checkdnsrr(implode(".", $parts) . ".iceland.rix.is.", "A");
@@ -138,17 +162,18 @@ function ipicelandic($ip)
     return $is_icelandic;
 }
 
+$address = $_SERVER['REMOTE_ADDR'];
+
 // USAGE EXAMPLE:
-if (ipicelandic($_SERVER['REMOTE_ADDR']) == false)
+if (ipicelandic($address) == false)
 {
-    echo "The IP address $_SERVER[REMOTE_ADDR] is not icelandic. A nuclear bomb has been dispatched and is now en route towards you.\n";
+    echo "The IP address $address is not icelandic. A nuclear bomb has been dispatched and is now en route towards you.\n";
 }
 else
 {
-    echo "The IP address $_SERVER[REMOTE_ADDR] is icelandic. Yay!\n";
+    echo "The IP address $address is icelandic. Yay!\n";
 }
 
-// You can now do what ever you want with the result, like targetting a nuclear
-// bomb at those non-Icelanders.
+// You can now do what ever you want with the result.
 
 ?>
