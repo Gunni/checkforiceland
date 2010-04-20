@@ -162,9 +162,9 @@ function ipicelandic($ip)
     return $is_icelandic;
 }
 
+// USAGE EXAMPLE:
 $address = $_SERVER['REMOTE_ADDR'];
 
-// USAGE EXAMPLE:
 if (ipicelandic($address) == false)
 {
     echo "The IP address $address is not icelandic. A nuclear bomb has been dispatched and is now en route towards you.\n";
