@@ -1,6 +1,6 @@
 <?php
 /*
-	checkforiceland - Version 2.3 (2010-04-19)
+	checkforiceland - Version 2.4 (2010-05-06)
 	
     Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
 
@@ -72,13 +72,6 @@ function ipicelandic($ip)
             $stmt->bind_result($counter);
             $stmt->fetch();
             $stmt->close();
-            
-            if ($stmt = $mysqli->prepare("UPDATE `ipicelandic_cache` SET `when` = NOW() WHERE `ip` = ?"))
-            {
-                $stmt->bind_param('s', inet_pton($ip));
-                $stmt->execute();
-                $stmt->close();
-            }
             
             if ($counter > 0)
             {
