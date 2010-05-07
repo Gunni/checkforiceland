@@ -1,6 +1,6 @@
 <?php
 /*
-	checkforiceland - Version 2.4 (2010-05-06)
+	checkforiceland - Version 2.5 (2010-05-07)
 	
     Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
 
@@ -58,7 +58,7 @@ function ipicelandic($ip)
     
     $mysqli = @new mysqli($database_hostname, $database_username, $database_password, $database_database);
     
-    if (mysqli_connect_errno() == false)
+    if ($mysqli->connect_errno != 0)
     {
         if ($stmt = $mysqli->prepare("DELETE FROM `ipicelandic_cache` WHERE `when` <= TIMESTAMP(NOW(), '-48:00:00')"))
         {
@@ -138,7 +138,7 @@ function ipicelandic($ip)
         $is_icelandic = checkdnsrr(implode(".", $parts) . ".iceland.rix.is.", "A");
     }
     
-    if (mysqli_connect_errno() == false)
+    if ($mysqli->connect_errno != 0)
     {
         $int_is_icelandic = $is_icelandic ? 1 : 0;
         
