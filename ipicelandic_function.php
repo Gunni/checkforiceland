@@ -1,7 +1,7 @@
 <?php
 /*
-	checkforiceland - Version 2.5a (2010-05-07)
-	
+    checkforiceland - Version 2.6 (2010-05-18)
+    
     Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
 
     Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,11 @@ In order to take advantage of the advanced caching feature, the database has to
 be configured properly and the following table created:
 
 CREATE TABLE IF NOT EXISTS `ipicelandic_cache` (
-    `ip`        TINYBLOB   NOT NULL,
-    `icelandic` TINYINT(1) NOT NULL,
-    `when`      TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `ip`        VARBINARY(16) NOT NULL,
+    `icelandic` TINYINT(1)    NOT NULL,
+    `when`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    PRIMARY KEY  (`ip`(16)),
-    KEY `ip_icelandic` (`ip`(16),`icelandic`),
+    PRIMARY KEY (`ip`),
     KEY `when` (`when`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 */
@@ -47,7 +46,7 @@ function ipicelandic($ip)
 {
     // Database configurations.
     // Please be aware that if ipicelandic is unable to connect to the,
-    // database, it will fail silently and fallback to DNS querying for each
+    // database, it will fail silently and fallback to DNS querying each
     // request.
     $database_hostname = 'localhost';
     $database_username = 'username';
@@ -65,18 +64,25 @@ function ipicelandic($ip)
             $stmt->execute();
         }
         
-        if ($stmt = $mysqli->prepare("SELECT COUNT(*) FROM `ipicelandic_cache` WHERE `ip` = ? AND `icelandic` = '1'"))
+        if ($stmt = $mysqli->prepare("SELECT `icelandic` FROM `ipicelandic_cache` WHERE `ip` = ?"))
         {
             $stmt->bind_param('s', $inbinary);
             $stmt->execute();
-            $stmt->bind_result($counter);
-            $stmt->fetch();
-            $stmt->close();
+            $stmt->bind_result($isl);
             
-            if ($counter > 0)
+            if ($stmt->fetch() == true)
             {
-                return true;
+                if ($isl >= 1)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
+            
+            $stmt->close();
         }
     }
     
