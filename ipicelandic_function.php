@@ -1,6 +1,6 @@
 <?php
 /*
-    checkforiceland - Version 2.6 (2010-05-18)
+    checkforiceland - Version 2.7 (2010-06-13)
     
     Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
 
@@ -62,6 +62,7 @@ function ipicelandic($ip)
         if ($stmt = $mysqli->prepare("DELETE FROM `ipicelandic_cache` WHERE `when` <= TIMESTAMP(NOW(), '-48:00:00')"))
         {
             $stmt->execute();
+            $stmt->close();
         }
         
         if ($stmt = $mysqli->prepare("SELECT `icelandic` FROM `ipicelandic_cache` WHERE `ip` = ?"))
