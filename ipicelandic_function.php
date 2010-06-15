@@ -1,6 +1,6 @@
 <?php
 /*
-    checkforiceland - Version 2.8 (2010-06-13)
+    checkforiceland - Version 2.8a (2010-06-15)
     
     Copyright (C) 2010  Gunnar Guðvarðarson, Gabríel A. Pétursson
 
@@ -70,20 +70,20 @@ function ipicelandic($ip)
             $stmt->bind_param('s', $inbinary);
             $stmt->execute();
             $stmt->bind_result($isl);
+            $success = $stmt->fetch();
+            $stmt->close();
             
-            $result = false;
-            
-            if ($stmt->fetch() == true)
+            if ($success == true)
             {
                 if ($isl >= 1)
                 {
-                    $result = true;
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
-            
-            $stmt->close();
-            
-            return $result;
         }
     }
     
