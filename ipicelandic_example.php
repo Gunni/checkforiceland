@@ -2,17 +2,17 @@
 	
 // USAGE EXAMPLE:
 $address = $_SERVER['REMOTE_ADDR'];
+//$address = $_GET['ip'];
 
-if (ipicelandic($address) == false)
+if ( ! checkforiceland($address))
 {
-    echo "The IP address $address is not icelandic. A nuclear bomb has been dispatched and is now en route towards you.\n";
+	echo "The IP address $address is not icelandic.";
 }
 else
 {
-    echo "The IP address $address is icelandic. Yay!\n";
+	echo "The IP address $address is icelandic. Yay!";
 }
 
 // You can now do what ever you want with the result.
 
-	
 ?>
