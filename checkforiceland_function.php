@@ -87,7 +87,7 @@ function checkforiceland($ip)
 	$is_ipv6         = strpos($ip, ':') !== false;
 	$is_ipv6_ipv4map = true;
 	
-	if ($is_ipv6 == true)
+	if ($is_ipv6)
 	{
 		for ($i = 0; $i < 10; $i++)
 		{
@@ -138,14 +138,14 @@ function checkforiceland($ip)
 		$parts = explode('.', $ip_, 4);
 		$parts = array_reverse($parts);
 		
-		$is_icelandic = checkdnsrr(implode(".", $parts).'.iceland.rix.is.', 'AAAA');
+		$is_icelandic = checkdnsrr(implode('.', $parts).'.iceland.rix.is.', 'AAAA');
 	}
 	
 	if ($mysqli->connect_errno == 0)
 	{
 		$int_is_icelandic = $is_icelandic ? 1 : 0;
 		
-		if ($stmt = $mysqli->prepare("INSERT INTO `checkforiceland_cache` (`ip`, `icelandic`) VALUES (?, ?)"))
+		if ($stmt = $mysqli->prepare('INSERT INTO `checkforiceland_cache` (`ip`, `icelandic`) VALUES (?, ?)'))
 		{
 			$stmt->bind_param('si', $inbinary, $int_is_icelandic);
 			$stmt->execute();
