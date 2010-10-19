@@ -138,7 +138,7 @@ function checkforiceland($ip)
 		$parts = explode('.', $ip_, 4);
 		$parts = array_reverse($parts);
 		
-		$is_icelandic = checkdnsrr(implode('.', $parts).'.iceland.rix.is.', 'AAAA');
+		$is_icelandic = checkdnsrr(implode('.', $parts).'.iceland.rix.is.', 'A');
 	}
 	
 	if ($mysqli->connect_errno == 0)
