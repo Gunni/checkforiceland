@@ -1,6 +1,8 @@
 <?php
 	
 // USAGE EXAMPLE:
+require_once('checkforiceland_function.php');
+
 $address = $_SERVER['REMOTE_ADDR'];
 //$address = $_GET['ip'];
 
