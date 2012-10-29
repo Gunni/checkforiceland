@@ -157,4 +157,3 @@ function checkforiceland($ip)
 	
 	return $is_icelandic;
 }
-?>
